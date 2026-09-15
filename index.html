@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="엑셀과 CSV를 브라우저에서만 분석하는 로컬 데이터 대시보드">
+  <title>로컬 데이터 대시보드</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a1020'/%3E%3Cpath d='M15 43V31h8v12zm13 0V19h8v24zm13 0V26h8v17' fill='%236ee7d2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span><div><strong>로컬 데이터</strong><small>분석 대시보드</small></div></div>
+      <button class="primary-action" id="folderButton"><span aria-hidden="true">＋</span> 폴더 선택</button>
+      <label class="fallback-action" for="folderInput">다른 방식으로 선택</label>
+      <input id="folderInput" type="file" accept=".xlsx,.xls,.csv,.tsv" webkitdirectory multiple hidden>
+      <div class="privacy-note"><span class="lock" aria-hidden="true">⌁</span><div><strong>기기 내 처리</strong><p>선택한 파일은 서버로 전송되지 않습니다.</p></div></div>
+      <div class="side-section">
+        <div class="section-label"><span>파일</span><span id="fileCount">0</span></div>
+        <div id="fileList" class="file-list"></div>
+      </div>
+      <div class="sidebar-foot">XLSX · CSV · TSV</div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div><p class="eyebrow">개인 데이터 워크스페이스</p><h1 id="pageTitle">데이터를 선택하세요</h1></div>
+        <div class="top-actions"><button class="icon-button" id="themeButton" title="테마 전환" aria-label="테마 전환">◐</button><button class="export-button" id="exportButton" disabled>요약 CSV 저장</button></div>
+      </header>
+
+      <section id="emptyState" class="empty-state">
+        <div class="empty-visual" aria-hidden="true"><span></span><span></span><span></span><span></span><b></b></div>
+        <p class="eyebrow">로컬 전용 분석</p>
+        <h2>엑셀 폴더를 열어<br>데이터의 흐름을 확인하세요</h2>
+        <p>파일을 선택하면 열 유형을 자동으로 판별하고 요약, 추세, 분포와 데이터 품질을 계산합니다.</p>
+        <button class="primary-action large" id="emptyFolderButton">폴더 선택</button>
+        <small>지원 형식: .xlsx, .csv, .tsv · 비밀번호 보호 파일 제외</small>
+      </section>
+
+      <div id="dashboard" class="dashboard" hidden>
+        <section class="control-row" aria-label="분석 설정">
+          <label>시트<select id="sheetSelect"></select></label>
+          <label>기준 열<select id="xSelect"></select></label>
+          <label>분석 값<select id="metricSelect"></select></label>
+          <label>집계<select id="aggregateSelect"><option value="none">원본 값</option><option value="day">일별</option><option value="month">월별</option><option value="year">연도별</option><option value="category">범주별</option></select></label>
+          <label class="search-field">표 검색<input id="searchInput" type="search" placeholder="행 내용 검색"></label>
+        </section>
+
+        <section class="kpi-grid" id="kpiGrid"></section>
+
+        <section class="analysis-grid">
+          <article class="panel chart-panel wide">
+            <div class="panel-head"><div><p class="panel-kicker">TREND</p><h2 id="trendTitle">추세</h2></div><div class="chart-tabs" id="chartTabs"><button class="active" data-chart="line">선</button><button data-chart="bar">막대</button></div></div>
+            <div class="chart-wrap"><canvas id="trendCanvas" aria-label="데이터 추세 차트"></canvas><div id="chartTooltip" class="chart-tooltip"></div></div>
+            <div id="legend" class="legend"></div>
+          </article>
+
+          <article class="panel insight-panel">
+            <div class="panel-head"><div><p class="panel-kicker">ANALYSIS</p><h2>자동 분석</h2></div><span class="analysis-badge">로컬 계산</span></div>
+            <div id="insights" class="insights"></div>
+          </article>
+
+          <article class="panel distribution-panel">
+            <div class="panel-head"><div><p class="panel-kicker">DISTRIBUTION</p><h2>값 분포</h2></div></div>
+            <canvas id="distributionCanvas" aria-label="값 분포 차트"></canvas>
+          </article>
+
+          <article class="panel quality-panel">
+            <div class="panel-head"><div><p class="panel-kicker">DATA QUALITY</p><h2>데이터 품질</h2></div></div>
+            <div id="qualityContent"></div>
+          </article>
+        </section>
+
+        <section class="panel table-panel">
+          <div class="panel-head"><div><p class="panel-kicker">ROWS</p><h2>데이터 미리보기</h2></div><span id="rowStatus" class="row-status"></span></div>
+          <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+          <div class="pagination"><button id="prevPage">이전</button><span id="pageInfo"></span><button id="nextPage">다음</button></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <script src="vendor/jszip.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
